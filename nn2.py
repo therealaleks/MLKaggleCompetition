@@ -5,7 +5,7 @@ from keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, Input, Inpu
 from keras.utils import to_categorical
 
 
-f = h5py.File('/home/tony/Documents/MNIST_synthetic.h5', 'r')
+f = h5py.File('MNIST_synthetic.h5', 'r')
 tsd = np.array(f['test_dataset']).astype('float32')/255
 trd = np.array(f['train_dataset']).astype('float32')/255
 trl = to_categorical(np.array(f['train_labels']))
