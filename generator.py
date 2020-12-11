@@ -114,15 +114,16 @@ def generator(images, labels):
 
 
 if __name__ == "__main__":
+
     check_mnist_dir("datasets")
     images, labels = extract_mnist("datasets")
     generated_images, generated_labels = generator(images, labels)
-    print("!", generated_images.shape)
-    print("?", generated_labels.shape)
+
     with h5py.File("generated.hdf5", "w") as f:
         fdset = f.create_dataset("generated_train_features", (COUNT, 64, 64), dtype="i")
         fdset[...] = generated_images
         ldset = f.create_dataset("generated_train_labels", (COUNT, 5), dtype="i")
         ldset[...] = generated_labels
+
     print(f"Generated {COUNT} images.")
 
