@@ -4,6 +4,8 @@ import keras
 from keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, Input, InputLayer
 from keras.utils import to_categorical
 from keras.models import Sequential, save_model, load_model
+from kagglePredictor import predict
+import matplotlib.pyplot as plt
 
 f = h5py.File('data.h5', 'r')
 trd = np.array(f['data_x']).reshape(279870, 12, 12, 1).astype('float32')/255
@@ -34,7 +36,14 @@ model.add(Dense(11, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['categorical_accuracy'])
 model.fit(trd,trl, epochs=400, verbose=1)
 
-# predictions = model.predict(tsd).reshape(14000, 5, 11)
-# classes = np.argmax(predictions, axis = 2)
-# for n,i in enumerate(classes):
-# 	print(n,"".join([str(j) for j in i]), sep=",")
+print('predicting')
+f = h5py.File('MNIST_synthetic.h5', 'r')
+tsd = np.array(f['test_dataset']).reshape(14000, 64,64).astype('float32')
+classes = predict(tsd[:14000], model)
+
+for n,i in enumerate(classes):
+    #show 20 first results
+    if n < 20:
+        plt.matshow(tsd[n])
+        plt.show()
+    print(n,"".join([str(j) for j in i]), sep=",")
