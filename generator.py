@@ -6,8 +6,12 @@ import cv2
 import random
 import h5py
 
+from multiprocessing import Pool, Manager, cpu_count
+from functools import partial
+
 COUNT = 10
 DEBUG = True
+MULTI = False
 mnist_keys = ['train-images-idx3-ubyte', 'train-labels-idx1-ubyte',
               't10k-images-idx3-ubyte', 't10k-labels-idx1-ubyte']
 
@@ -68,7 +72,7 @@ def rotate_image(image, angle):
 
 
 def generator(images, labels):
-    indexes = np.arange(70001)
+    indexes = np.arange(70000)
     images = np.array([cv2.resize(img, (12, 12)) for img in images])
     generated_images = []
     generated_labels = []
@@ -78,15 +82,15 @@ def generator(images, labels):
         digit_count = random.randint(1, 5)
 
         if digit_count == 1:
-            offset = random.randint(22, 27)
+            offset = random.randint(23, 28)
         elif digit_count == 2:
-            offset = random.randint(17, 22)
+            offset = random.randint(18, 23)
         elif digit_count == 3:
-            offset = random.randint(12, 17)
+            offset = random.randint(13, 18)
         elif digit_count == 4:
-            offset = np.random.randint(7, 12)
+            offset = np.random.randint(8, 13)
         elif digit_count == 5:
-            offset = random.randint(2, 7)
+            offset = random.randint(5, 8)
         else:
             raise ValueError("digits should be between 1 and 5 inclusive")
 
@@ -100,7 +104,7 @@ def generator(images, labels):
             img = np.maximum(instance_image[26:38, offset: offset + 12].reshape(-1),
                              img.reshape(-1))
             instance_image[26:38, offset: offset + 12] = img.reshape(12, 12)
-            offset += random.randint(8, 12)
+            offset += random.randint(8, 11)
 
         if DEBUG:
             print(instance_label)
@@ -113,11 +117,72 @@ def generator(images, labels):
     return np.array(generated_images), np.array(generated_labels)
 
 
+def helper(count, images, labels, res):
+
+    indexes = np.arange(70000)
+
+    for _ in range(count):
+
+        if _ % 10000 == 0:
+            print(_)
+
+        digit_count = random.randint(1, 5)
+
+        if digit_count == 1:
+            offset = random.randint(23, 28)
+        elif digit_count == 2:
+            offset = random.randint(18, 23)
+        elif digit_count == 3:
+            offset = random.randint(13, 18)
+        elif digit_count == 4:
+            offset = np.random.randint(8, 13)
+        elif digit_count == 5:
+            offset = random.randint(5, 8)
+        else:
+            raise ValueError("digits should be between 1 and 5 inclusive")
+
+        idx_choices = indexes[:digit_count]
+        instance_label = np.concatenate((labels[idx_choices], np.array([10] * (5 - digit_count)))).astype(np.uint8)
+        instance_image = np.zeros((64, 64)).astype(np.uint8)
+
+        for img in images[idx_choices]:
+            img = rotate_image(img, random.randint(-30, 30))
+            img = np.maximum(instance_image[26:38, offset: offset + 12].reshape(-1),
+                             img.reshape(-1))
+            instance_image[26:38, offset: offset + 12] = img.reshape(12, 12)
+            offset += random.randint(8, 11)
+
+        res.append((instance_image, instance_label))
+
+
+def multiproc_generator(images, labels, cores):
+    results = None
+    generated_images = None
+    generated_labels = None
+    images = np.array([cv2.resize(img, (12, 12)) for img in images])
+
+    with Manager() as manager, Pool(processes=cores) as pool:
+        results = manager.list()
+        f = partial(helper, images=images, labels=labels, res=results)
+        for _ in pool.imap_unordered(f, [COUNT//cores] * cores):
+            pass
+        results = list(results)
+        generated_images = np.array([tup[0] for tup in results])
+        generated_labels = np.array([tup[1] for tup in results])
+
+    return generated_images, generated_labels
+
+
 if __name__ == "__main__":
 
     check_mnist_dir("datasets")
     images, labels = extract_mnist("datasets")
-    generated_images, generated_labels = generator(images, labels)
+    if MULTI:
+        cores = cpu_count() - 1 or 1
+        generated_images, generated_labels = multiproc_generator(images, labels, cores)
+        COUNT = (COUNT // cores) * cores
+    else:
+        generated_images, generated_labels = generator(images, labels)
 
     with h5py.File("generated.hdf5", "w") as f:
         fdset = f.create_dataset("generated_train_features", (COUNT, 64, 64), dtype="i")
