@@ -124,4 +124,5 @@ if __name__ == "__main__":
         fdset[...] = generated_images
         ldset = f.create_dataset("generated_train_labels", (COUNT, 5), dtype="i")
         ldset[...] = generated_labels
+    print(f"Generated {COUNT} images.")
 
