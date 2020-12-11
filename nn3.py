@@ -5,7 +5,6 @@ from keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, Input, Inpu
 from keras.utils import to_categorical
 from keras.models import Sequential, save_model, load_model
 
-
 f = h5py.File('data.h5', 'r')
 trd = np.array(f['data_x']).reshape(279870, 12, 12, 1).astype('float32')/255
 trl = to_categorical(np.array(f['data_y']))
