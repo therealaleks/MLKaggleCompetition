@@ -27,7 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import keras
 
-f = h5py.File('/home/tony/Documents/MNIST_synthetic.h5', 'r')
+f = h5py.File('MNIST_synthetic.h5', 'r')
 tsd = np.array(f['test_dataset']).astype('float32')/255
 trd = np.array(f['train_dataset']).astype('float32')/255
 trl = np.array(f['train_labels'])
