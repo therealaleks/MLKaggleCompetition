@@ -156,7 +156,6 @@ def helper(count, images, labels, res):
 
 
 def multiproc_generator(images, labels, cores):
-    results = None
     generated_images = None
     generated_labels = None
     images = np.array([cv2.resize(img, (12, 12)) for img in images])
