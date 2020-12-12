@@ -41,9 +41,10 @@ model.add(Dropout(0.5))
 model.add(Dense(55, activation='softmax'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['binary_accuracy'])
-model.fit(trd,trl, epochs=400, verbose=0)
+model.fit(trd, trl, epochs=1, verbose=1)
 
 predictions = model.predict(tsd).reshape(14000, 5, 11)
-classes = np.argmax(predictions, axis = 2)
-for n,i in enumerate(classes):
-	print(n,"".join([str(j) for j in i]), sep=",")
+classes = np.argmax(predictions, axis=2)
+with open("some", "w") as f:
+	for n, i in enumerate(classes):
+		f.write(f"{n},{''.join([str(j) for j in i])}\n")
