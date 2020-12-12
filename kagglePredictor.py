@@ -85,14 +85,15 @@ def predict( kaggleTestSet, model):
     kaggleTestSet = np.delete(kaggleTestSet, slice(26), 1)
     kaggleTestSet = np.delete(kaggleTestSet, slice(12, 38), 1)
     kaggleTestSet = np.delete(kaggleTestSet, slice(0, 2), 2)
-
+    f = h5py.File('data_test.h5', 'r')
+    tsd = np.array(f['data_x'])
     results = []
     #printProgressBar(0, len(kaggleTestSet), prefix = 'Progress:', suffix = 'Complete', length = 50)
-    for i,digits in enumerate(kaggleTestSet):
+    for i,digits in enumerate(tsd):
         #printProgressBar(i+1, len(kaggleTestSet), prefix = 'Progress:', suffix = 'Complete', length = 50)
         print(i)
-        splitt = split(digits)
-        results.append(model.predict(splitt.reshape(5,12,12,1)))
+        #splitt = split(digits)
+        results.append(model.predict(digits.reshape(5,12,12,1).astype('float32')/255))
         #plt.matshow(digits)
         #plt.show()
 
