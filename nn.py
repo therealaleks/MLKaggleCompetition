@@ -54,5 +54,4 @@ model.add(Dense(5, activation='softmax'))
 
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
 history = model.fit(trd, trl, epochs=10, verbose=1)

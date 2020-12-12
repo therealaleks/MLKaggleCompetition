@@ -34,7 +34,7 @@ model.add(Dropout(0.5))
 model.add(Dense(11, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['categorical_accuracy'])
-model.fit(trd,trl, epochs=400, verbose=1)
+model.fit(trd,trl, epochs=200, verbose=1)
 
 print('predicting')
 f = h5py.File('MNIST_synthetic.h5', 'r')
@@ -47,3 +47,7 @@ for n,i in enumerate(classes):
         plt.matshow(tsd[n])
         plt.show()
     print(n,"".join([str(j) for j in i]), sep=",")
+
+h5f = h5py.File('splitPrediction.h5', 'w')
+h5f.create_dataset('splitPrediction', data=classes)
+h5f.close()
