@@ -4,12 +4,12 @@ import numpy as np
 #script to determine similarity % between two set of results
 
 #accuracy of champion results to determine if we should submit to kaggle
-champAcc = 98.261
+champAcc = 99.226
 #estimate percentage of champ's wrong predictions that candidate will get right
-upset = 0.5
+upset = 0.05
 
 candidate = pd.read_csv("results400.csv")
-champ = pd.read_csv("98261.csv")
+champ = pd.read_csv("99226.csv")
 candidate = np.array(candidate['Label'])
 champ = np.array(champ['Label'])
 
